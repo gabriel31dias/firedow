@@ -7,4 +7,8 @@ services:
     startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.0 
+        value: 3.11.0
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: SSL_CERT_FILE
+        value: /etc/ssl/certs/ca-certificates.crt 

@@ -8,6 +8,7 @@ API Flask para download de vídeos do YouTube em formatos MP3 e MP4.
 - Limpeza automática de arquivos temporários
 - Suporte a CORS para uso em frontend
 - Endpoints de health check e status
+- Configurações otimizadas para produção
 
 ## Endpoints
 
@@ -85,8 +86,33 @@ A API automaticamente:
 - Limpa arquivos antigos (mais de 1 hora) periodicamente
 - Gerencia espaço em disco automaticamente
 
+## Solução de Problemas
+
+### Erro de SSL em Produção
+
+Se você encontrar erros de SSL como:
+```
+certificate verify failed: unable to get local issuer certificate
+```
+
+A API já está configurada para resolver isso com:
+- `nocheckcertificate: True`
+- `ignoreerrors: True`
+- Certificados SSL instalados no Dockerfile
+- Configurações de retry e timeout
+
+### Teste de Produção
+
+Após o deploy, teste sua API:
+
+```bash
+# Edite o arquivo test_production.py com sua URL
+python test_production.py
+```
+
 ## Notas
 
 - O plano gratuito do Render tem limitações de recursos
 - Downloads podem ser mais lentos no ambiente de produção
-- Recomenda-se usar para vídeos de tamanho moderado 
+- Recomenda-se usar para vídeos de tamanho moderado
+- A primeira requisição pode demorar alguns segundos (cold start) 

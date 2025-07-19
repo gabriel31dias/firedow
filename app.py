@@ -145,10 +145,14 @@ def download_video(url, format_type='mp4'):
                 'quiet': False,
                 'no_warnings': False,
                 'extract_flat': False,
-                'ignoreerrors': False,
+                'ignoreerrors': True,
                 'nocheckcertificate': True,
                 'prefer_ffmpeg': True,
                 'nooverwrites': False,
+                'retries': 3,
+                'fragment_retries': 3,
+                'skip_unavailable_fragments': True,
+                'http_chunk_size': 10485760,  # 10MB chunks
             }
         elif format_type == 'mp4':
             ydl_opts = {
@@ -157,11 +161,15 @@ def download_video(url, format_type='mp4'):
                 'quiet': False,
                 'no_warnings': False,
                 'extract_flat': False,
-                'ignoreerrors': False,
+                'ignoreerrors': True,
                 'nocheckcertificate': True,
                 'prefer_ffmpeg': True,
                 'nooverwrites': False,
                 'merge_output_format': 'mp4',
+                'retries': 3,
+                'fragment_retries': 3,
+                'skip_unavailable_fragments': True,
+                'http_chunk_size': 10485760,  # 10MB chunks
             }
         else:
             ydl_opts = {
@@ -170,10 +178,14 @@ def download_video(url, format_type='mp4'):
                 'quiet': False,
                 'no_warnings': False,
                 'extract_flat': False,
-                'ignoreerrors': False,
+                'ignoreerrors': True,
                 'nocheckcertificate': True,
                 'prefer_ffmpeg': True,
                 'nooverwrites': False,
+                'retries': 3,
+                'fragment_retries': 3,
+                'skip_unavailable_fragments': True,
+                'http_chunk_size': 10485760,  # 10MB chunks
             }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:

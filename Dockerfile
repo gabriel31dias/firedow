@@ -1,9 +1,12 @@
 FROM python:3.11-slim
 
-# Instalar FFmpeg (necessário para conversão de áudio/vídeo)
+# Instalar FFmpeg e certificados SSL
 RUN apt-get update && apt-get install -y \
     ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
+    ca-certificates \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && update-ca-certificates
 
 # Definir diretório de trabalho
 WORKDIR /app
