@@ -112,10 +112,18 @@ def get_video_info(url):
             'quiet': True,
             'no_warnings': True,
             'extract_flat': True,
+            'ignoreerrors': True,
+            'nocheckcertificate': True,
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(clean_url, download=False)
+            
+            # Verificar se info é None
+            if info is None:
+                logger.error("Não foi possível extrair informações do vídeo")
+                return None
+                
             return {
                 'title': info.get('title', 'Unknown'),
                 'duration': info.get('duration', 0),
@@ -135,7 +143,7 @@ def download_video(url, format_type='mp4'):
         # Configurações baseadas no formato
         if format_type == 'mp3':
             ydl_opts = {
-                'format': 'bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best',
+                'format': 'bestaudio/best',
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': 'mp3',
@@ -152,11 +160,10 @@ def download_video(url, format_type='mp4'):
                 'retries': 3,
                 'fragment_retries': 3,
                 'skip_unavailable_fragments': True,
-                'http_chunk_size': 10485760,  # 10MB chunks
             }
         elif format_type == 'mp4':
             ydl_opts = {
-                'format': 'bestvideo[ext=mp4]+bestaudio[ext=mp4]/mp4+best[height<=480]',
+                'format': 'best',
                 'outtmpl': os.path.join(DOWNLOAD_DIR, '%(title)s.%(ext)s'),
                 'quiet': False,
                 'no_warnings': False,
@@ -165,11 +172,9 @@ def download_video(url, format_type='mp4'):
                 'nocheckcertificate': True,
                 'prefer_ffmpeg': True,
                 'nooverwrites': False,
-                'merge_output_format': 'mp4',
                 'retries': 3,
                 'fragment_retries': 3,
                 'skip_unavailable_fragments': True,
-                'http_chunk_size': 10485760,  # 10MB chunks
             }
         else:
             ydl_opts = {
@@ -185,32 +190,16 @@ def download_video(url, format_type='mp4'):
                 'retries': 3,
                 'fragment_retries': 3,
                 'skip_unavailable_fragments': True,
-                'http_chunk_size': 10485760,  # 10MB chunks
             }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            # Primeiro, extrair informações sem baixar
-            info = ydl.extract_info(clean_url, download=False)
-            
-            # Verificar se há formatos disponíveis
-            if 'formats' not in info or not info['formats']:
-                raise Exception("Nenhum formato de vídeo disponível para download")
-            
-            # Verificar se há formatos de áudio para MP3
-            if format_type == 'mp3':
-                audio_formats = [f for f in info['formats'] if f.get('acodec') != 'none' and f.get('acodec') is not None]
-                if not audio_formats:
-                    raise Exception("Nenhum formato de áudio disponível para conversão MP3")
-            
-            # Verificar se há formatos de vídeo para MP4 (mais flexível)
-            if format_type == 'mp4':
-                video_formats = [f for f in info['formats'] if f.get('vcodec') != 'none' and f.get('vcodec') is not None]
-                audio_formats = [f for f in info['formats'] if f.get('acodec') != 'none' and f.get('acodec') is not None]
-                if not video_formats and not audio_formats:
-                    raise Exception("Nenhum formato de vídeo ou áudio disponível para download MP4")
-            
-            # Fazer o download
+            # Fazer o download diretamente sem verificar formatos primeiro
             info = ydl.extract_info(clean_url, download=True)
+            
+            # Verificar se info é None após o download
+            if info is None:
+                raise Exception("Erro durante o download do vídeo")
+            
             filename = ydl.prepare_filename(info)
             
             # Para MP3, o arquivo final terá extensão .mp3
@@ -404,10 +393,20 @@ def test_download():
             'quiet': True,
             'no_warnings': True,
             'extract_flat': False,
+            'ignoreerrors': True,
+            'nocheckcertificate': True,
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(clean_url, download=False)
+            
+            # Verificar se info é None
+            if info is None:
+                return jsonify({
+                    'error': 'Não foi possível extrair informações do vídeo',
+                    'original_url': url,
+                    'cleaned_url': clean_url
+                }), 400
             
             formats = []
             for f in info.get('formats', []):
